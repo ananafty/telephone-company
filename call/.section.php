@@ -1,0 +1,6 @@
+<?
+$sSectionName = "Телефон";
+$arDirProperties = array(
+
+);
+?>

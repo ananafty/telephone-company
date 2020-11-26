@@ -1,0 +1,10 @@
+.bx-authform-vertical-center{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.bx-authform-formgroup-container .btn, .bx-filter-param-label{
+    display: table !important;
+}
