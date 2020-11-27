@@ -1,38 +1,37 @@
-<? require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
-$APPLICATION->SetTitle("Телефон"); ?>
+<? require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php"); // подключение шапки
+$APPLICATION->SetTitle("Телефон"); // вывод заголовка странцы?>
 
     <div class="container">
         <?
-        $order = ['sort' => 'login '];
-        $tmp = 'sort';
-        $rsUsers = CUser::GetList($order, $tmp);
-        $getUser = CUser::GetByID($USER->GetID());
-        $foreachGetUser = $getUser->Fetch();
+        $order = ['sort' => 'login ']; //переменная сортировка по логину
+        $tmp = 'sort'; // переменная для включения сортировки
+        $rsUsers = CUser::GetList($order, $tmp); // запрос на список всех пользователей с сортировкой по логину
+        $getUser = CUser::GetByID($USER->GetID()); // запрос данных авторизованного пользователя
+        $foreachGetUser = $getUser->Fetch(); // бежим по массиву данных авторизованного пользователя
         ?>
         <table class="table">
             <tbody>
             <?
-            while ($arUser = $rsUsers->Fetch()) {
-                $rsUser = CUser::GetByID('' . $arUser['ID'] . '');
-
+            while ($arUser = $rsUsers->Fetch()) { // бежим по массиву всех пользователей
+                $rsUser = CUser::GetByID('' . $arUser['ID'] . ''); // берем данные пользователя из массива
                 ?>
                 <tr>
                     <?
-                    while ($arUser = $rsUser->Fetch()) {
-                        if ($foreachGetUser['ID'] !== $arUser['ID']) {
+                    while ($arUser = $rsUser->Fetch()) { // бежим по массиву данных пользователя
+                        if ($foreachGetUser['ID'] !== $arUser['ID']) { // делаем проверку на то чтобы авторизованный пользователь не выводился в списке контактов
                             ?>
-                            <td><?= $arUser['LAST_NAME'] ?></td>
-                            <td><?= $arUser['NAME'] ?></td>
-                            <td><?= $arUser['SECOND_NAME'] ?></td>
-                            <td><?= $arUser['UF_PHONE_NUMBER'] ?></td>
+                            <td><?= $arUser['LAST_NAME'] //вывод фамилии пользователя?></td>
+                            <td><?= $arUser['NAME'] //вывод имени пользователя?></td>
+                            <td><?= $arUser['SECOND_NAME'] //вывод отчества пользователя?></td>
+                            <td><?= $arUser['UF_PHONE_NUMBER'] //вывод номер телефона пользователя?></td>
                             <td>
                                 <button type="button"
                                         class="btn btn-primary btn-contacts"
-                                        data-id-user="<?=$foreachGetUser['ID']?>"
-                                        data-id-call-user="<?=$arUser['ID']?>"
-                                        data-last-name="<?= $arUser['LAST_NAME'] ?>"
-                                        data-name="<?= $arUser['NAME'] ?>"
-                                        data-second-name="<?= $arUser['SECOND_NAME'] ?>"
+                                        data-id-user="<?=$foreachGetUser['ID'] //записывем в атрибут ид авторизованного пользователя?>"
+                                        data-id-call-user="<?=$arUser['ID'] //записывем в атрибут ид пользователя из списка?>"
+                                        data-last-name="<?= $arUser['LAST_NAME'] //записывем в атрибут фамилию пользователя?>"
+                                        data-name="<?= $arUser['NAME'] //записывем в атрибут имя пользователя?>"
+                                        data-second-name="<?= $arUser['SECOND_NAME'] //записывем в атрибут фамилия пользователя?>"
                                         data-toggle="modal"
                                         data-target="#exampleModalCenter">
                                     Позвонить
@@ -71,8 +70,8 @@ $APPLICATION->SetTitle("Телефон"); ?>
     <script>
         var startTimeInterval = 0
         var cashe
-        function startTime() {
-            $('.time').text('00:00:00')
+        function startTime() { // функция секундамера
+            $('.time').text('00:00:00') // сброс строки из поля с классом time
             var thisDate = new Date();
             startTimeInterval = setInterval(function(){
                 var newDate = new Date() - thisDate;
@@ -88,44 +87,36 @@ $APPLICATION->SetTitle("Телефон"); ?>
 
         function stopTime() {
             clearInterval(startTimeInterval)
-            $('.time').text('00:00:00')
+            $('.time').text('00:00:00') // сброс строки из поля с классом time
         }
 
-        function ajax(user, callUser, time) {
+        function ajax(user, callUser, time) { // аякс запрос на запись данных в HighloadBlock
             $.ajax({
                 method: "POST",
                 url: "ajax.php",
                 data: {
-                    user: user,
-                    callUser: callUser,
-                    time: time
+                    user: user, // id авторизованного пользователя
+                    callUser: callUser, // id пользователя которому звонили
+                    time: time // общее время звонка
                 }
             })
         }
 
-        document.querySelectorAll('.btn-contacts').forEach(function (e) {
-            e.addEventListener('click', function () {
-                document.querySelector('.contacts-name').innerHTML = '' + this.getAttribute('data-last-name') + ' ' + this.getAttribute('data-name') + ' ' + this.getAttribute('data-second-name')
-                startTime()
+        document.querySelectorAll('.btn-contacts').forEach(function (e) { // бежим по массиву кнопок с классом btn-contacts
+            e.addEventListener('click', function () { // активируем обработчик событий по клику
+                document.querySelector('.contacts-name').innerHTML = '' + this.getAttribute('data-last-name') + ' ' + this.getAttribute('data-name') + ' ' + this.getAttribute('data-second-name') // записываем ФИО в поле с классом contacts-name
+                startTime() // запускаем функцию таймера
                 cashe = {
-                    user: $(this).attr('data-id-user'),
-                    callUser: $(this).attr('data-id-call-user'),
+                    user: $(this).attr('data-id-user'), // записываем в обект id пользователя
+                    callUser: $(this).attr('data-id-call-user'), // записываем в обект id пользователя которому звоним
                 }
             })
         })
 
-        $(document).ready(function () {
-            $(document).mousedown(function (e){ // событие клика по странице
-                if (!$(".modal-content").is(e.target) && // если клик сделан не по элементу
-                    $(".modal-content").has(e.target).length === 0) { // если клик сделан не по вложенным элементам
-                }
-            });
-        })
-
-        $('.btn-close-modal').click(function () {
-            ajax(cashe['user'], cashe['callUser'], $('.time').text())
-            stopTime()
+        $('.btn-close-modal').click(function () { // событие клика по кнопке закрытие модального окна
+            ajax(cashe['user'], cashe['callUser'], $('.time').text()) // передаем данные пользователя в аякс функцию
+            stopTime() // запуск функции стоп таймер
         })
     </script>
 
-<? require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php"); ?>
+<? require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/footer.php"); //подключение подвала?>

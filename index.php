@@ -1,6 +1,6 @@
 <?
-require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
-$APPLICATION->SetTitle("Телефонная компания");
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php"); // подключение шаблона шапки
+$APPLICATION->SetTitle("Телефонная компания"); // вывод заголовка страницы в мета тэг
 ?>
 <div class="container">
     <div class="d-flex align-items-center justify-content-center h-100">

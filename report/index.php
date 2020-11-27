@@ -1,10 +1,10 @@
 <? require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
 
-use Bitrix\Main\Loader;
-use Bitrix\Highloadblock as HL;
+use Bitrix\Main\Loader; // класс для загрузки необходимых файлов, классов и модулей
+use Bitrix\Highloadblock as HL; //класс для взаимодействие с Highloadblock
 
 Loader::includeModule("highloadblock");
-$APPLICATION->SetTitle("Телефон"); ?>
+$APPLICATION->SetTitle("Телефон"); // вывод заголовка странцы?>
     <div class="container">
         <h3 style="margin: 40px 0 40px 0">Фильтр</h3>
         <div class="btn-group" role="group" aria-label="Basic example" style="margin: 0 0 40px 0">
@@ -27,13 +27,13 @@ $APPLICATION->SetTitle("Телефон"); ?>
             </thead>
             <tbody>
             <?
-            $getUserId = $USER->GetID();
-            $hlblock = HL\HighloadBlockTable::getById(4)->fetch();
-            $entity = HL\HighloadBlockTable::compileEntity($hlblock);
-            $entityClass = $entity->getDataClass();
+            $getUserId = $USER->GetID();;// запрос данных авторизованного пользователя
+            $hlblock = HL\HighloadBlockTable::getById(4)->fetch(); // делаем запрос к HighloadBlock
+            $entity = HL\HighloadBlockTable::compileEntity($hlblock); // инициализировать класс сущности
+            $entityClass = $entity->getDataClass(); // берем данные
 
-            $dayNow = new DateTime();
-            $dayNowFormat = $dayNow->format('d.m.Y');
+            $dayNow = new DateTime(); // берем время сервера
+            $dayNowFormat = $dayNow->format('d.m.Y'); // форматируем на вывод дннь месяц год
 
             if ($_GET['filter'] === 'week') {
                 $filter = new DateTime('-7 day');
@@ -50,37 +50,37 @@ $APPLICATION->SetTitle("Телефон"); ?>
 
             $filterFormat = $filter->format('d.m.Y');
 
-            $res = $entityClass::getList([
+            $res = $entityClass::getList([ // запрос на данные из HighloadBlock отчет
                 'select' => ['*'],
                 'filter' => [
-                    'UF_USER'   => $getUserId,
-                    ">=UF_DATA" => ConvertDateTime($filterFormat, "DD.MM.YYYY") . " 00:00:00",
+                    'UF_USER'   => $getUserId, // id пользователя
+                    ">=UF_DATA" => ConvertDateTime($filterFormat, "DD.MM.YYYY") . " 00:00:00", // диапазон времени
                     "<=UF_DATA" => ConvertDateTime($dayNowFormat, "DD.MM.YYYY") . " 23:59:59",
                 ]
             ]);
 
-            $i = 1;
-            foreach ($res as $key => $row) {
+            $i = 1; // просто для того чтобы в таблицу вывести нумерацию строк
+            foreach ($res as $key => $row) { // бежим по массиву с данными отчета
                 ?>
                 <tr>
                     <td><?= $i++ ?></td>
-                    <td><?= $row['UF_PHONE_NUMBER_ABONENT'] ?></td>
+                    <td><?= $row['UF_PHONE_NUMBER_ABONENT'] // номер абонента кторуму звонили?></td>
                     <td><?
-                        $hlblock1 = HL\HighloadBlockTable::getById(3)->fetch();
-                        $entity1 = HL\HighloadBlockTable::compileEntity($hlblock1);
-                        $entityClass1 = $entity1->getDataClass();
+                        $hlblock1 = HL\HighloadBlockTable::getById(3)->fetch(); // делаем запрос к HighloadBlock
+                        $entity1 = HL\HighloadBlockTable::compileEntity($hlblock1);  // инициализировать класс сущности
+                        $entityClass1 = $entity1->getDataClass(); // берем данные
                         $res1 = $entityClass1::getList([
                             'select' => ['*'],
                         ]);
-                        foreach ($res1 as $key => $row1) {
-                            if ($row1['ID'] === $row['UF_CITY_CALL']) {
-                                echo $row1['UF_CITY'];
+                        foreach ($res1 as $key => $row1) { // бежим по массиву городов
+                            if ($row1['ID'] === $row['UF_CITY_CALL']) { // сравниваем ид города и его значения
+                                echo $row1['UF_CITY']; // вывод города
                             }
                         }
                         ?></td>
-                    <td><?= $row['UF_DATA'] ?></td>
-                    <td><?= $row['UF_TIME'] ?></td>
-                    <td><?= str_replace('.',',',$row['UF_CALL_COST'])?></td>
+                    <td><?= $row['UF_DATA'] // дата звонка?></td>
+                    <td><?= $row['UF_TIME'] //время разговора?></td>
+                    <td><?= str_replace('.',',',$row['UF_CALL_COST']) // вывод стоимости звонка?></td>
                 </tr>
                 <?
             }
@@ -90,8 +90,8 @@ $APPLICATION->SetTitle("Телефон"); ?>
     </div>
 
     <script>
-        $('#saveExel').click(function () {
-            $("#table").table2excel({
+        $('#saveExel').click(function () { // обработчик событи по клику по кнопке saveExel
+            $("#table").table2excel({ // берем данные из таблицы table и запускаем функцию плагина
                 name: "list1",
                 filename: "Экспорт звонков",
                 fileext: ".xls",
