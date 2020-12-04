@@ -1,5 +1,6 @@
 <?php
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php"); // подключение ядра битрикс
+require($_SERVER["DOCUMENT_ROOT"]."/call/сheckSending.php"); // подключение ядра битрикс
 use Bitrix\Main\Loader; // класс для загрузки необходимых файлов, классов и модулей
 use Bitrix\Highloadblock as HL; //класс для взаимодействие с Highloadblock
 Loader::includeModule("highloadblock");
@@ -37,6 +38,7 @@ while ($row = $res->fetch()) { // бежим по массиву тарифов
 
 $timeCall = date_parse(''.$_POST['time'].''); // превращаем время в массив
 $summMoney = (($timeCall['hour'] * 60) + $timeCall['minute']) * $tarif;
+$getTime = $date->format('d.m.Y H:i:s');
 
 // Массив полей для добавления
 $data = array(
@@ -46,11 +48,17 @@ $data = array(
     "UF_USER_CALL"=>$callUserArray['ID'],
     "UF_PHONE_NUMBER_ABONENT"=>$callUserArray['UF_PHONE_NUMBER'],
     "UF_CITY_CALL"=>$callUserArray['UF_CITY'],
-    "UF_DATA"=>$date->format('d.m.Y H:i:s'),
+    "UF_DATA"=>$getTime,
     "UF_TIME"=>$_POST['time'],
     "UF_CALL_COST"=>$summMoney,
 );
 
 $result = $entity_data_class::add($data); // отправляем данные в HighloadBlock
+
+if(checkSending($userArray['ID'],$callUserArray['ID'],$getTime) === 'error'){// вызов функции на проверку отправки данных и проверка исхода
+    $result = $entity_data_class::add($data);
+} else {
+    echo 'ok';
+}
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php"); // закрытие ядра битрикс
